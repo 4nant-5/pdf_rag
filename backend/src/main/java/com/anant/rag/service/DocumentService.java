@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -18,16 +18,18 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final DocumentChunkRepository documentChunkRepository;
+
     private final PdfService pdfService;
     private final ChunkingService chunkingService;
     private final EmbeddingService embeddingService;
+    private final VectorStoreService vectorStoreService;
 
     public void ingest(MultipartFile file) throws Exception {
 
-        // Extract text from PDF
+        // Extract text
         String text = pdfService.extractText(file);
 
-        // Create chunks
+        // Chunk text
         List<String> chunks = chunkingService.chunkText(text);
 
         // Save document metadata
@@ -38,7 +40,7 @@ public class DocumentService {
 
         document = documentRepository.save(document);
 
-        // Save each chunk
+        // Save chunks in relational database
         for (String chunk : chunks) {
 
             float[] embeddingVector =
@@ -56,5 +58,8 @@ public class DocumentService {
 
             documentChunkRepository.save(documentChunk);
         }
+
+        // Save chunks in PgVectorStore
+        vectorStoreService.saveChunks(chunks);
     }
 }

@@ -1,27 +1,24 @@
 package com.anant.rag.controller;
 
-
-import com.anant.rag.service.PdfService;
-import com.anant.rag.service.ChunkingService;
+import com.anant.rag.service.DocumentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import java.util.List;
 
 @RestController
 @RequestMapping("/documents")
 @RequiredArgsConstructor
 public class DocumentController {
 
-    private final PdfService pdfService;
-    private final ChunkingService chunkingService;
+    private final DocumentService documentService;
 
     @PostMapping("/upload")
-    public List<String> upload(
+    public String upload(
             @RequestParam MultipartFile file
     ) throws Exception {
 
-        String text = pdfService.extractText(file);
-        return chunkingService.chunkText(text);
+        documentService.ingest(file);
+
+        return "Document ingested successfully";
     }
 }

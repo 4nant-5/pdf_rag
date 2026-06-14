@@ -1,0 +1,7 @@
+package com.anant.rag.config;
+
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class VectorStoreConfig {
+}
